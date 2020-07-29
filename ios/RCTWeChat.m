@@ -632,6 +632,48 @@ RCT_EXPORT_METHOD(launchMiniProgram:(NSDictionary *)data
 
 }
 
+- (void)shareToWeixinWithTextMessage:(int)aScene
+                                Text:(NSString *)text
+                                callBack:(RCTResponseSenderBlock)callback
+{
+    SendMessageToWXReq* req = [SendMessageToWXReq new];
+    req.bText = YES;
+    req.scene = aScene;
+    req.text = text;
+
+    BOOL success = [WXApi sendReq:req];
+    callback(@[success ? [NSNull null] : INVOKE_FAILED]);
+}
+
+- (void)shareToWeixinWithMediaMessage:(int)aScene
+                                Title:(NSString *)title
+                          Description:(NSString *)description
+                               Object:(id)mediaObject
+                           MessageExt:(NSString *)messageExt
+                        MessageAction:(NSString *)action
+                           ThumbImage:(UIImage *)thumbImage
+                             MediaTag:(NSString *)tagName
+                             callBack:(RCTResponseSenderBlock)callback
+{
+    WXMediaMessage *message = [WXMediaMessage message];
+    message.title = title;
+    message.description = description;
+    message.mediaObject = mediaObject;
+    message.messageExt = messageExt;
+    message.messageAction = action;
+    message.mediaTagName = tagName;
+    [message setThumbImage:thumbImage];
+
+    SendMessageToWXReq* req = [SendMessageToWXReq new];
+    req.bText = NO;
+    req.scene = aScene;
+    req.message = message;
+
+    BOOL success = [WXApi sendReq:req];
+    callback(@[success ? [NSNull null] : INVOKE_FAILED]);
+}
+
+
 RCT_EXPORT_METHOD(shareToTimeline:(NSDictionary *)data
                   :(RCTResponseSenderBlock)callback)
 {
