@@ -136,19 +136,6 @@ declare module "react-native-wechat-lib" {
         reserved?: string
     }
 
-    export interface ShareOldMetadata {
-        thumbImage?: string,
-        type: string,
-        title?: string;
-        description?: string;
-        webpageUrl: string,
-        imageUrl?: string,
-        videoUrl?: string,
-        musicUrl?: string,
-        filePath?: string,
-        fileExtension?: string
-    }
-
     export function shareText(
         message: ShareTextMetadata
     ): Promise<{ errCode?: number; errStr?: string }>;
@@ -200,10 +187,10 @@ declare module "react-native-wechat-lib" {
 
     // 以下为旧用法
     export function shareToSession(
-        message: ShareOldMetadata
+        message: ShareMetadata
     ): Promise<{ errCode?: number; errStr?: string }>;
 
     export function shareToTimeline(
-        message: ShareOldMetadata
+        message: ShareMetadata
     ): Promise<{ errCode?: number; errStr?: string }>;
 }
