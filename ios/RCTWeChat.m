@@ -101,7 +101,7 @@ RCT_EXPORT_MODULE()
     if (data.length > maxLength) {
         return [self compressImage:resultImage toByte:maxLength];
     }
-    
+
     return data;
 }
 
@@ -255,7 +255,7 @@ RCT_EXPORT_METHOD(shareImage:(NSDictionary *)data
         callback([NSArray arrayWithObject:@"shareImage: ImageUrl value, Could not find file suffix."]);
         return;
     }
-    
+
     // 根据路径下载图片
     UIImage *image = [self getImageFromURL:imageUrl];
     // 从 UIImage 获取图片数据
@@ -263,7 +263,7 @@ RCT_EXPORT_METHOD(shareImage:(NSDictionary *)data
     // 用图片数据构建 WXImageObject 对象
     WXImageObject *imageObject = [WXImageObject object];
     imageObject.imageData = imageData;
-    
+
     WXMediaMessage *message = [WXMediaMessage message];
     // 利用原图压缩出缩略图，确保缩略图大小不大于32KB
     message.thumbData = [self compressImage: image toByte:32678];
@@ -300,7 +300,7 @@ RCT_EXPORT_METHOD(shareLocalImage:(NSDictionary *)data
         callback([NSArray arrayWithObject:@"shareLocalImage: ImageUrl value, Could not find file suffix."]);
         return;
     }
-    
+
     // 根据路径下载图片
     UIImage *image = [UIImage imageWithContentsOfFile:imageUrl];
     // 从 UIImage 获取图片数据
@@ -308,7 +308,7 @@ RCT_EXPORT_METHOD(shareLocalImage:(NSDictionary *)data
     // 用图片数据构建 WXImageObject 对象
     WXImageObject *imageObject = [WXImageObject object];
     imageObject.imageData = imageData;
-    
+
     WXMediaMessage *message = [WXMediaMessage message];
     // 利用原图压缩出缩略图，确保缩略图大小不大于32KB
     message.thumbData = [self compressImage: image toByte:32678];
@@ -579,7 +579,7 @@ RCT_EXPORT_METHOD(launchMiniProgram:(NSDictionary *)data
                 } else {
                     WXImageObject *imageObject = [WXImageObject object];
                     imageObject.imageData = UIImagePNGRepresentation(image);
-                    
+
                     [self shareToWeixinWithMediaMessage:aScene
                                                   Title:title
                                             Description:description
@@ -589,7 +589,7 @@ RCT_EXPORT_METHOD(launchMiniProgram:(NSDictionary *)data
                                              ThumbImage:aThumbImage
                                                MediaTag:mediaTagName
                                                callBack:callback];
-                    
+
                 }
             }];
         } else if ([type isEqualToString:RCTWXShareTypeFile]) {
@@ -641,8 +641,15 @@ RCT_EXPORT_METHOD(launchMiniProgram:(NSDictionary *)data
     req.scene = aScene;
     req.text = text;
 
-    BOOL success = [WXApi sendReq:req];
-    callback(@[success ? [NSNull null] : INVOKE_FAILED]);
+    void ( ^ completion )( BOOL );
+    completion = ^( BOOL success )
+    {
+        callback(@[success ? [NSNull null] : INVOKE_FAILED]);
+        return;
+    };
+    [WXApi sendReq:req completion:completion];
+//    BOOL success = [WXApi sendReq:req];
+//    callback(@[success ? [NSNull null] : INVOKE_FAILED]);
 }
 
 - (void)shareToWeixinWithMediaMessage:(int)aScene
@@ -669,8 +676,15 @@ RCT_EXPORT_METHOD(launchMiniProgram:(NSDictionary *)data
     req.scene = aScene;
     req.message = message;
 
-    BOOL success = [WXApi sendReq:req];
-    callback(@[success ? [NSNull null] : INVOKE_FAILED]);
+    void ( ^ completion )( BOOL );
+    completion = ^( BOOL success )
+    {
+        callback(@[success ? [NSNull null] : INVOKE_FAILED]);
+        return;
+    };
+    [WXApi sendReq:req completion:completion];
+//    BOOL success = [WXApi sendReq:req];
+//    callback(@[success ? [NSNull null] : INVOKE_FAILED]);
 }
 
 
@@ -728,7 +742,7 @@ RCT_EXPORT_METHOD(pay:(NSDictionary *)data
     if([resp isKindOfClass:[SendMessageToWXResp class]])
     {
         SendMessageToWXResp *r = (SendMessageToWXResp *)resp;
-    
+
         NSMutableDictionary *body = @{@"errCode":@(r.errCode)}.mutableCopy;
         body[@"errStr"] = r.errStr;
         body[@"lang"] = r.lang;
@@ -743,7 +757,7 @@ RCT_EXPORT_METHOD(pay:(NSDictionary *)data
         body[@"lang"] = r.lang;
         body[@"country"] =r.country;
         body[@"type"] = @"SendAuth.Resp";
-    
+
         if (resp.errCode == WXSuccess) {
             if (self.appId && r) {
             // ios第一次获取不到appid会卡死，加个判断OK
